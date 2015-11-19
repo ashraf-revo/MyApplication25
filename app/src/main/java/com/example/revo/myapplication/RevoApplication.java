@@ -17,7 +17,6 @@ import org.springframework.web.client.RestTemplate;
 /**
  * Created by revo on 15/11/15.
  */
-
 public class RevoApplication extends Application {
     Revorabbitmq revorabbitmq;
     HttpEntity request;
@@ -37,10 +36,10 @@ public class RevoApplication extends Application {
 
     public Person Login(String email, String password) {
         try {
-            String plainCreds = email + ":" + password;
-            String base64Creds = Base64.encodeToString(plainCreds.getBytes(), Base64.DEFAULT);
+            String plainCred = email + ":" + password;
+            String base64Cred = Base64.encodeToString(plainCred.getBytes(), Base64.DEFAULT);
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Authorization", "Basic " + base64Creds);
+            headers.add("Authorization", "Basic " + base64Cred);
             HttpEntity<String> request = new HttpEntity<String>(headers);
             this.request = request;
             ResponseEntity<Person> response = restTemplate.exchange("https://hivon.herokuapp.com/home/currentlogin", HttpMethod.GET, request, Person.class);
