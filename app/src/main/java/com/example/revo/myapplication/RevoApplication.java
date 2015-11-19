@@ -32,12 +32,11 @@ public class RevoApplication extends Application {
 
     public void initRabbit(variables variables, Context context) {
         revorabbitmq = new Revorabbitmq();
-        revorabbitmq.init(variables.getHost(), variables.getUsername(), variables.getPassword(), variables.getQueuename(), context,person);
+        revorabbitmq.init(variables, context,person);
     }
 
     public Person Login(String email, String password) {
         try {
-
             String plainCreds = email + ":" + password;
             String base64Creds = Base64.encodeToString(plainCreds.getBytes(), Base64.DEFAULT);
             HttpHeaders headers = new HttpHeaders();

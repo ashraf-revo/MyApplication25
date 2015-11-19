@@ -1,15 +1,13 @@
-package com.example.revo.myapplication;
+package com.example.revo.myapplication.view;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
+import com.example.revo.myapplication.R;
+import com.example.revo.myapplication.RevoApplication;
 import com.example.revo.myapplication.Service.MainService;
 import com.example.revo.myapplication.model.Person;
 import com.example.revo.myapplication.model.variables;
-
-import java.util.concurrent.ExecutionException;
 
 
 public class MainActivity extends AppCompatActivity {

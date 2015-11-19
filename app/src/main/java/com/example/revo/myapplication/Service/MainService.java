@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
  * Created by revo on 19/11/15.
  */
 public class MainService {
-   public Person LoginAsync(final RevoApplication application, final String email, final String password) {
+    public Person LoginAsync(final RevoApplication application, final String email, final String password) {
         try {
             return new AsyncTask<Void, Void, Person>() {
                 @Override
@@ -25,7 +25,7 @@ public class MainService {
         }
     }
 
-  public   variables GetAsyncVariables(final RevoApplication application) {
+    public variables GetAsyncVariables(final RevoApplication application) {
         try {
             return new AsyncTask<Void, Void, variables>() {
                 @Override

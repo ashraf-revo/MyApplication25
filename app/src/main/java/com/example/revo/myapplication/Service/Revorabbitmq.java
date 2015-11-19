@@ -9,7 +9,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 
-import com.example.revo.myapplication.NotificationReceiver;
+import com.example.revo.myapplication.model.variables;
+import com.example.revo.myapplication.view.NotificationReceiver;
 import com.example.revo.myapplication.R;
 import com.example.revo.myapplication.model.Person;
 import com.example.revo.myapplication.model.event;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import rx.Observable;
+import rx.Subscription;
 import rx.functions.Action1;
 
 /**
@@ -35,7 +37,6 @@ public class Revorabbitmq {
     private String host;
     private String username;
     private String password;
-    private String listen;
     Context context;
     Person person;
     private String queue = "toServer";
@@ -43,22 +44,22 @@ public class Revorabbitmq {
     private Connection connection;
     Channel channel;
     private Consumer consumer;
+    private Subscription subscribe;
 
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public void init(String host, String username, String password, final String listen, final Context context, Person person) {
-        this.host = host;
-        this.username = username;
-        this.password = password;
-        this.listen = listen;
+    public void init(final variables variables, final Context context, Person person) {
+        this.host = variables.getHost();
+        this.username = variables.getUsername();
+        this.password = variables.getPassword();
         this.context = context;
         this.person = person;
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                connectionFactory = getconnectionFactory();
+                connectionFactory = getConnectionFactory();
                 connection = getConnection();
-                channel = getchannel();
+                channel = getChannel();
                 try {
                     consumer = new DefaultConsumer(channel) {
                         @Override
@@ -82,17 +83,16 @@ public class Revorabbitmq {
                             notificationManager.notify(0, noti);
                         }
                     };
-                    channel.basicConsume(listen, true, consumer);
+                    channel.basicConsume(variables.getQueuename(), true, consumer);
                 } catch (IOException ignored) {
                 }
                 SendLocation();
-
                 return null;
             }
         }.execute();
     }
 
-    private ConnectionFactory getconnectionFactory() {
+    private ConnectionFactory getConnectionFactory() {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(host);
         factory.setUsername(username);
@@ -109,7 +109,7 @@ public class Revorabbitmq {
         return null;
     }
 
-    private Channel getchannel() {
+    private Channel getChannel() {
         try {
             return connection.createChannel();
         } catch (IOException ignored) {
@@ -118,7 +118,7 @@ public class Revorabbitmq {
     }
 
     void SendLocation() {
-        Observable.interval(1, TimeUnit.SECONDS).subscribe(new Action1<Long>() {
+        subscribe = Observable.interval(1, TimeUnit.SECONDS).subscribe(new Action1<Long>() {
             @Override
             public void call(Long aLong) {
                 try {
@@ -132,12 +132,13 @@ public class Revorabbitmq {
         });
 
     }
-    void SendMessage(final String queuename, final byte[] message) {
+
+    void SendMessage(final String queueName, final byte[] message) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    channel.basicPublish("", queuename, null, message);
+                    channel.basicPublish("", queueName, null, message);
                 } catch (IOException ignored) {
                 }
                 return null;
@@ -147,6 +148,7 @@ public class Revorabbitmq {
 
     void closeConnection() {
         try {
+            subscribe.unsubscribe();
             channel.close();
             connection.close();
         } catch (IOException | TimeoutException ignored) {
